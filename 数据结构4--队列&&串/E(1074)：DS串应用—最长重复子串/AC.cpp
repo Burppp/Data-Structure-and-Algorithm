@@ -1,0 +1,170 @@
+#include<iostream>
+#include<cstring>
+using namespace std;
+class myString
+{
+private:
+    string mainstr; // 串
+    int size;       // 串长度
+    void GetNext(string p, int next[]);
+    int KMPFind(string p, int next[]);
+public:
+    myString();
+    ~myString();
+    void SetVal(string sp);
+    int KMPFindSubstr(string p);
+    void strReplace(string p, int idx, int size);
+    int find(string *str);
+    int max_length();
+};
+int myString::max_length()
+{
+    string sub;
+    int i, j, max = 0;
+    for (i = 1; i <= size / 2; i++)
+    {
+        for (j = 0; j <= size / 2; j++)
+        {
+            sub = mainstr.substr(j, i);
+            if (mainstr.find(sub, j + i) != -1)
+                if (max < sub.size())
+                    max = sub.size();
+        }
+    }
+    if (!max)
+        max = -1;
+    return max;
+}
+int myString::find(string *str)
+{
+    int i, count = 0;
+    string* ch1 = new string[str->size()];
+    string* ch2 = new string[str->size()];
+    for (i = 1; i < str->size(); i++, count++)
+    {
+        ch1[count] = str->substr(0, i);
+        ch2[count] = str->substr(str->size() - i, i);
+    }
+    int max = -1;
+    for (i = 0; i < count; i++)
+        if (ch1[i] == ch2[i])
+            max = i;
+    if (max == -1)
+        cout << "empty";
+    else
+        cout << ch1[max];
+    cout << endl;
+    return max;
+}
+void myString::strReplace(string p, int idx, int size)
+{
+    if (idx == -1)
+    {
+        cout << this->mainstr << endl;
+        return;
+    }
+    int i = 0, count = 0;
+    this->mainstr.replace(this->mainstr.begin() + idx - 1,
+        this->mainstr.begin() + idx - 1 + size,
+        p.c_str());
+
+    cout << this->mainstr << endl;
+}
+myString::myString()
+{
+    size = 0;
+    mainstr = "";
+}
+myString::~myString()
+{
+    size = 0;
+    mainstr = "";
+}
+void myString::SetVal(string sp)
+{
+    mainstr = "";
+    mainstr.assign(sp);
+    size = (int)mainstr.length();
+    //cout << this->mainstr << endl;
+}
+int myString::KMPFindSubstr(string p)
+{
+    int i;
+    int L = (int)p.length();
+    int* next = new int[L];
+    GetNext(p, next);
+    /*for (i = 0; i < L; i++)
+        cout << next[i] << ' ';
+    cout << endl;*/
+    int v = -1;
+    v = KMPFind(p, next);
+    /*cout << v << endl;*/
+    delete[]next;
+    return v;
+}
+void myString::GetNext(string p, int next[])
+{
+    next[0] = -1;
+    next[1] = 0;
+    int i = 1, j = 0;
+    int idx = 2;
+    while (i < p.size())
+    {
+        if (p[i] == p[j])
+        {
+            j++;
+            i++;
+            if (idx < p.size())
+                next[idx++] = j;
+        }
+        else
+        {
+            if (j == 0)
+            {
+                if (idx < p.size())
+                    next[idx++] = 0;
+                i++;
+            }
+            else
+                j = next[j];
+        }
+    }
+}
+int myString::KMPFind(string p, int next[])
+{
+    int i, j;
+    for (i = 0, j = 0; i < this->mainstr.size();)
+    {
+        if (this->mainstr[i] == p[j])
+            i++, j++;
+        else if (j > 0)
+            j = next[j];
+        else
+            i++;
+        if (j >= p.size())
+            return i - j + 1;
+    }
+    return -1;
+}
+int main()
+{
+    int t;
+    myString str;
+    string txt;
+    cin >> t;
+    while (t--)
+    {
+        cin >> txt;
+        str.SetVal(txt);
+        cout << str.max_length() << endl;
+    }
+    return 0;
+}
+/**********************************************************************
+	Problem: 1074
+	User: 202200201118
+	Language: C++
+	Result: AC
+	Time:5 ms
+	Memory:2228 kb
+**********************************************************************/
