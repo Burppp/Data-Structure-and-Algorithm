@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 using namespace std;
 class Binary_tree_node;
@@ -67,47 +68,30 @@ inline int HeightDiff(int now)
 }
 void L(int an)
 {
-	int E = an;
-	int S = tr[an].right;
-	int Eleft = tr[an].left;
-	int Sleft = tr[tr[tr[an].right].left].key;
-	int Sright = tr[tr[an].right].right;
-	
-	tr[an].left = tr[E].key;
-	tr[an].key = tr[S].key;
-	tr[an].right = tr[Sright].key;
-	
-	tr[tr[an].left].left = tr[Eleft].key;
-	tr[tr[an].left].right = tr[Sleft].key;
-	
-	tr[an].height = max(tr[tr[an].left].height, tr[tr[an].right].height) + 1;
-	tr[tr[an].left].height = max(tr[tr[tr[an].left].left].height, tr[tr[tr[an].left].right].height) + 1;
+	int anRight = tr[an].right;
+	tr[an].right = tr[anRight].left;
+	tr[anRight].left = an;
+	an = anRight;
+	UpdateHeight(tr[an].left);
+	UpdateHeight(an);
 }
 void R(int an)
 {
-	int S = an;
-	int E = tr[an].left;
-	int Sright = tr[an].right;
-	int Eleft = tr[tr[an].left].left;
-	int Eright = tr[tr[an].left].right;
-	
-	tr[an].key = E;
-	tr[an].left = Eleft;
-	tr[an].right = S;
-	tr[tr[an].right].left = Eright;
-	tr[tr[an].right].right = Sright;
-	
-	tr[an].height = max(tr[tr[an].left].height, tr[tr[an].right].height) + 1;
-	tr[tr[an].right].height = max(tr[tr[tr[an].right].left].height, tr[tr[tr[an].right].left].height) + 1;
+	int anLeft = tr[an].left;
+	tr[an].left = tr[anLeft].right;
+	tr[anLeft].right = an;
+	an = anLeft;
+	UpdateHeight(tr[an].right);
+	UpdateHeight(an);
 }
 int LL(int an)
 {
-	R(an);
+	L(an);
 	return an;
 }
 int RR(int an)
 {
-	L(an);
+	R(an);
 	return an;
 }
 int LR(int an)
@@ -231,26 +215,31 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
+	fstream fin, fout;
+	fin.open("test.in", ios::in);
+	fout.open("test.out", ios::out);
 	int n, op, key, data;
-	while (cin >> n)
+	while (fin >> n)
 	{
 		root = tp = -1;
 		while (n--)  // 初始化根结点和“内存指针”
 		{
-			cin >> op;
+			fin >> op;
 			if (op == 1)//insert
 			{
-				cin >> key;
+				fin >> key;
 				Insert(root, key);
 			}
 			else if (op == 2)//delete
 			{
-				cin >> key;
+				fin >> key;
 				key = InOrder(root, 0, key);
-				cout << key << endl;
+				fout << key << endl;
 				Delete(root, key);
 			}
 		}
+		fin.close();
+		fout.close();
 		return 0;
 	}
 }
