@@ -68,15 +68,6 @@ inline int HeightDiff(int now)
 }
 void L(int an)
 {
-	int anRight = tr[an].right;
-	tr[an].right = tr[anRight].left;
-	tr[anRight].left = an;
-	an = anRight;
-	UpdateHeight(tr[an].left);
-	UpdateHeight(an);
-}
-void R(int an)
-{
 	int anLeft = tr[an].left;
 	tr[an].left = tr[anLeft].right;
 	tr[anLeft].right = an;
@@ -84,14 +75,23 @@ void R(int an)
 	UpdateHeight(tr[an].right);
 	UpdateHeight(an);
 }
+void R(int an)
+{	
+	int anRight = tr[an].right;
+	tr[an].right = tr[anRight].left;
+	tr[anRight].left = an;
+	an = anRight;
+	UpdateHeight(tr[an].left);
+	UpdateHeight(an);
+}
 int LL(int an)
 {
-	L(an);
+	R(an);
 	return an;
 }
 int RR(int an)
 {
-	R(an);
+	L(an);
 	return an;
 }
 int LR(int an)
