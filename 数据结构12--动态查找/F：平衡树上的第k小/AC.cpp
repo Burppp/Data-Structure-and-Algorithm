@@ -32,10 +32,14 @@ inline int UpdateHeight(int now)
 	// 更新 tr[now] 结点的子树高度，即tr[now].height的值
 	int max_height = 0;
 	if (tr[tr[now].left].height > tr[tr[now].right].height)
+	{
 		max_height = tr[tr[now].left].height;
+	}
 	if (tr[tr[now].left].height < tr[tr[now].right].height)
+	{
 		max_height = tr[tr[now].right].height;
-	
+	}
+	tr[now].height = max_height + 1;
 	return max_height + 1;
 }
 inline int HeightDiff(int now)
@@ -66,7 +70,16 @@ inline int HeightDiff(int now)
 	}
 	return 0;
 }
-void L(int an)
+void L(int& an)
+{
+	int anRight = tr[an].right;
+	tr[an].right = tr[anRight].left;
+	tr[anRight].left = an;
+	an = anRight;
+	UpdateHeight(tr[an].left);
+	UpdateHeight(an);
+}
+void R(int& an)
 {
 	int anLeft = tr[an].left;
 	tr[an].left = tr[anLeft].right;
@@ -75,32 +88,23 @@ void L(int an)
 	UpdateHeight(tr[an].right);
 	UpdateHeight(an);
 }
-void R(int an)
-{	
-	int anRight = tr[an].right;
-	tr[an].right = tr[anRight].left;
-	tr[anRight].left = an;
-	an = anRight;
-	UpdateHeight(tr[an].left);
-	UpdateHeight(an);
-}
-int LL(int an)
+int LL(int& an)
 {
 	R(an);
 	return an;
 }
-int RR(int an)
+int RR(int& an)
 {
 	L(an);
 	return an;
 }
-int LR(int an)
+int LR(int& an)
 {
 	L(tr[an].left);
 	R(an);
 	return an;
 }
-int RL(int an)
+int RL(int& an)
 {
 	R(tr[an].right);
 	L(an);
@@ -108,6 +112,10 @@ int RL(int an)
 }
 void Balance(int& now)
 {
+	if(now == -1)
+	{
+		return;
+	}
 	int rotate_type = HeightDiff(now);
 	switch (rotate_type)
 	{
@@ -127,7 +135,7 @@ void Balance(int& now)
 		;
 	}
 	
-	tr[now].height = UpdateHeight(now);
+	UpdateHeight(now);
 }
 void Insert(int& now, int key, int data = 0)
 {
@@ -150,6 +158,21 @@ void Insert(int& now, int key, int data = 0)
 	
 	Balance(now);
 }
+int Search(int prev, int &now)
+{
+	int p_prev;
+	if(tr[now].left == -1)
+	{
+		p_prev = now;
+		tr[prev].left = tr[now].right;
+	}
+	else
+	{
+		p_prev = Search(now,tr[now].left);
+		Balance(now);
+	}
+	return p_prev;
+}
 void Delete(int& now, int key)
 {
 	if (now == -1) return;
@@ -160,53 +183,53 @@ void Delete(int& now, int key)
 		// 删除当前结点
 		if (tr[now].left == -1 && tr[now].right == -1)
 		{
-			tr[now].key = -1;
+			now = -1;
 		}
 		else if (tr[now].left != -1 && tr[now].right == -1)
 		{
-			tr[now] = tr[tr[now].left];
+			now = tr[now].left;
 		}
 		else if (tr[now].left == -1 && tr[now].right != -1)
 		{
-			tr[now] = tr[tr[now].right];
+			now = tr[now].right;
 		}
 		else if (tr[now].left != -1 && tr[now].right != -1)
 		{
-			int prev = tr[now].left;
-			int p_prev = now;
-			while (tr[prev].right != -1)
+			int nowLeft = tr[now].left;
+			int nowRight = tr[now].right;
+			now = Search(nowRight, nowRight);
+			if(now != nowRight)
 			{
-				p_prev = prev;
-				prev = tr[prev].right;
+				tr[now].right = nowRight;
 			}
-			tr[now].key = tr[prev].key;
-			if (tr[now].left == prev)
-			{
-				tr[now].left = tr[prev].left;
-				prev = -1;
-			}
-			if (prev != -1)
-			{
-				tr[p_prev].right = tr[prev].left;
-				prev = -1;
-			}
+			tr[now].left = nowLeft;
 		}
 	}
 	// 处理树平衡
 	Balance(now);
 }
-void InOrder_helper(int& now, int index)
+int index = 0;
+void InOrder_helper(int& now)
 {
-	if (tr[now].key != -1)
+	if (now != -1)
 	{
-		InOrder_helper(tr[now].left, index);
+		InOrder_helper(tr[now].left);
 		keys[index++] = tr[now].key;
-		InOrder_helper(tr[now].right, index);
+		InOrder_helper(tr[now].right);
 	}
 }
-int InOrder(int& now, int index, int k)
+int InOrder(int& now, int k)
 {
-	InOrder_helper(now, index);
+	if(now == -1)
+	{
+		return -1;
+	}
+	index = 0;
+	InOrder_helper(now);
+	if (k > index + 1)
+	{
+		return -1;
+	}
 	int key = keys[k - 1];
 	return key;
 }
@@ -220,21 +243,26 @@ int main()
 	fout.open("test.out", ios::out);
 	int n, op, key, data;
 	while (fin >> n)
+//	while (cin >> n)
 	{
 		root = tp = -1;
 		while (n--)  // 初始化根结点和“内存指针”
 		{
 			fin >> op;
+//			cin >> op;
 			if (op == 1)//insert
 			{
 				fin >> key;
+//				cin >> key;
 				Insert(root, key);
 			}
 			else if (op == 2)//delete
 			{
 				fin >> key;
-				key = InOrder(root, 0, key);
+//				cin >> key;
+				key = InOrder(root, key);
 				fout << key << endl;
+//				cout << key << endl;
 				Delete(root, key);
 			}
 		}
