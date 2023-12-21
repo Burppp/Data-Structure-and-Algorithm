@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 using namespace std;
 class Binary_tree_node;
 const int maxn = 1e5 + 10;
@@ -42,33 +41,19 @@ inline int UpdateHeight(int now)
 	tr[now].height = max_height + 1;
 	return max_height + 1;
 }
-inline int HeightDiff(int now)
+inline int HeightDiff(int &now)
 {
 	// 计算 tr[now] 结点的平衡因子
-	int height_diff = tr[tr[now].left].height - tr[tr[now].right].height;
-	if (height_diff > 1)//L
+	int leftHeight = 0, rightHeight = 0;
+	if(tr[now].left != -1)
 	{
-		if (tr[tr[now].left].right > tr[tr[now].left].left)//R
-		{
-			return LR_;
-		}
-		else
-		{
-			return LL_;
-		}
+		leftHeight = tr[tr[now].left].height;
 	}
-	else if (height_diff < -1)//R
+	if(tr[now].right != -1)
 	{
-		if (tr[tr[now].right].left > tr[tr[now].right].right)//L
-		{
-			return RL_;
-		}
-		else
-		{
-			return RR_;
-		}
+		rightHeight = tr[tr[now].right].height;
 	}
-	return 0;
+	return leftHeight - rightHeight;
 }
 void L(int& an)
 {
@@ -88,27 +73,23 @@ void R(int& an)
 	UpdateHeight(tr[an].right);
 	UpdateHeight(an);
 }
-int LL(int& an)
-{
-	R(an);
-	return an;
-}
-int RR(int& an)
+inline void RR(int& an)
 {
 	L(an);
-	return an;
 }
-int LR(int& an)
+void LL(int& an)
 {
-	L(tr[an].left);
 	R(an);
-	return an;
 }
-int RL(int& an)
+inline void LR(int& an)
 {
-	R(tr[an].right);
-	L(an);
-	return an;
+	LL(tr[an].left);
+	RR(an);
+}
+inline void RL(int& an)
+{
+	RR(tr[an].right);
+	LL(an);
 }
 void Balance(int& now)
 {
@@ -116,23 +97,33 @@ void Balance(int& now)
 	{
 		return;
 	}
-	int rotate_type = HeightDiff(now);
-	switch (rotate_type)
+	int if_rotate = HeightDiff(now);
+	if(abs(if_rotate) > 1)
 	{
-	case LL_:
-		LL(now);
-		break;
-	case RR_:
-		RR(now);
-		break;
-	case LR_:
-		LR(now);
-		break;
-	case RL_:
-		RL(now);
-		break;
-	default:
-		;
+		if(if_rotate > 1)
+		{
+			int leftHeight = HeightDiff(tr[now].left);
+			if(leftHeight > 0)
+			{
+				LL(now);
+			}
+			else
+			{
+				LR(now);
+			}
+		}
+		else
+		{
+			int rightHeight = HeightDiff(tr[now].right);
+			if(rightHeight > 0)
+			{
+				RL(now);
+			}
+			else
+			{
+				RR(now);
+			}
+		}
 	}
 	
 	UpdateHeight(now);
@@ -238,36 +229,36 @@ int main()
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
-	fstream fin, fout;
-	fin.open("test.in", ios::in);
-	fout.open("test.out", ios::out);
+//	fstream fin, fout;
+//	fin.open("test.in", ios::in);
+//	fout.open("test.out", ios::out);
 	int n, op, key, data;
-	while (fin >> n)
-//	while (cin >> n)
+//	while (fin >> n)
+	while (cin >> n)
 	{
 		root = tp = -1;
 		while (n--)  // 初始化根结点和“内存指针”
 		{
-			fin >> op;
-//			cin >> op;
+//			fin >> op;
+			cin >> op;
 			if (op == 1)//insert
 			{
-				fin >> key;
-//				cin >> key;
+//				fin >> key;
+				cin >> key;
 				Insert(root, key);
 			}
 			else if (op == 2)//delete
 			{
-				fin >> key;
-//				cin >> key;
+//				fin >> key;
+				cin >> key;
 				key = InOrder(root, key);
-				fout << key << endl;
-//				cout << key << endl;
+//				fout << key << endl;
+				cout << key << endl;
 				Delete(root, key);
 			}
 		}
-		fin.close();
-		fout.close();
+//		fin.close();
+//		fout.close();
 		return 0;
 	}
 }
