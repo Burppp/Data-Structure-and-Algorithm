@@ -44,7 +44,7 @@ inline int UpdateHeight(int now)
 inline int HeightDiff(int &now)
 {
 	// 计算 tr[now] 结点的平衡因子
-	int leftHeight = 0, rightHeight = 0;
+	int leftHeight = 0, rightHeight = 0, diff = 0;
 	if(tr[now].left != -1)
 	{
 		leftHeight = tr[tr[now].left].height;
@@ -53,7 +53,50 @@ inline int HeightDiff(int &now)
 	{
 		rightHeight = tr[tr[now].right].height;
 	}
-	return leftHeight - rightHeight;
+	diff = leftHeight - rightHeight;
+	leftHeight = rightHeight = 0;
+	if(abs(diff) > 1)
+	{
+		if(diff > 1)
+		{
+			if(tr[now].left != -1)
+			{
+				leftHeight = tr[tr[tr[now].left].left].height - tr[tr[tr[now].left].right].height + 1;
+			}
+			if(leftHeight > 0)
+			{
+				return LL_;
+			}
+			else if(leftHeight < 0)
+			{
+				return LR_;
+			}
+			else if(leftHeight == 0)
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			if(tr[now].right != -1)
+			{
+				rightHeight = tr[tr[tr[now].right].left].height - tr[tr[tr[now].right].right].height + 1;
+			}
+			if(rightHeight > 0)
+			{
+				return RL_;
+			}
+			else if(rightHeight < 0)
+			{
+				return RR_;
+			}
+			else if(rightHeight == 0)
+			{
+				return 0;
+			}
+		}
+	}
+	return 0;
 }
 void L(int& an)
 {
@@ -73,7 +116,7 @@ void R(int& an)
 	UpdateHeight(tr[an].right);
 	UpdateHeight(an);
 }
-inline void RR(int& an)
+void RR(int& an)
 {
 	L(an);
 }
@@ -81,12 +124,12 @@ void LL(int& an)
 {
 	R(an);
 }
-inline void LR(int& an)
+void LR(int& an)
 {
 	LL(tr[an].left);
 	RR(an);
 }
-inline void RL(int& an)
+void RL(int& an)
 {
 	RR(tr[an].right);
 	LL(an);
@@ -97,33 +140,23 @@ void Balance(int& now)
 	{
 		return;
 	}
-	int if_rotate = HeightDiff(now);
-	if(abs(if_rotate) > 1)
+	int rotateType = HeightDiff(now);
+	switch(rotateType)
 	{
-		if(if_rotate > 1)
-		{
-			int leftHeight = HeightDiff(tr[now].left);
-			if(leftHeight > 0)
-			{
-				LL(now);
-			}
-			else
-			{
-				LR(now);
-			}
-		}
-		else
-		{
-			int rightHeight = HeightDiff(tr[now].right);
-			if(rightHeight > 0)
-			{
-				RL(now);
-			}
-			else
-			{
-				RR(now);
-			}
-		}
+	case LL_:
+		LL(now);
+		break;
+	case LR_:
+		LR(now);
+		break;
+	case RR_:
+		RR(now);
+		break;
+	case RL_:
+		RL(now);
+		break;
+	case 0:
+		break;
 	}
 	
 	UpdateHeight(now);
