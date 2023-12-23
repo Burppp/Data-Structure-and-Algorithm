@@ -1,35 +1,110 @@
 Description
-处理表达式过程中需要对括号匹配进行检验，括号匹配包括三种：“(”和“)”，“[”和“]”，“{”和“}”。例如表达式中包含括号如下：
+二种操作：
 
-(   )   [   (   )   (   [   ]   )   ]   {   }
-1   2   3   4   5   6   7   8   9   10  11  12
-从上例可以看出第1和第2个括号匹配，第3和第10个括号匹配，4和5匹配，6和9匹配，7和8匹配，11和12匹配。从中可以看到括号嵌套的的情况是比较复杂的，使用堆栈可以很方便的处理这种括号匹配检验，可以遵循以下规则：
+1 Key 表示插入一个新数据Key；
+2 K 输出当前数据从小到大排列的第 K个数，并删除这个数，不存在则输出-1。
+要求使用平衡树实现
 
-当接收第1个左括号，表示新的一组匹配检查开始；随后如果连续接收到左括号，则不断进堆栈。
-当接受第1个右括号，则和最新进栈的左括号进行匹配，表示嵌套中1组括号已经匹配消除
-若到最后，括号不能完全匹配，则说明输入的表达式有错
-建议使用C++自带的stack对象来实现
+#include<stdio.h>
+const int maxn = 1e5 + 10;
+struct Node
+{
+    int key;        // 关键值
+    int data;       // 携带的数据
+    int left;       // 左子树地址（数组下标）
+    int right;      // 右子树地址（数组下标）
+    int height;     // 当前结点为根的子树高度
+    void Init(){data = key = left = right = height = -1;}
+    void Init(int k_, int d_=0){Init(); key = k_; data = d_;}
+    Node(){Init();}
+    Node(int k_, int d_=0){Init(k_, d_);}
+};
 
+Node tr[maxn];
+int root, tp;  // root标记根节点位置，tp全局结点分配下标
+
+inline int UpdateHeight(int now)
+{
+    // 更新 tr[now] 结点的子树高度，即tr[now].height的值
+}
+inline int HeightDiff(int now)
+{
+    // 计算 tr[now] 结点的平衡因子
+}
+int LL(int an)
+{
+}
+int RR(int an)
+{
+}
+int LR(int an)
+{
+}
+int RL(int an)
+{
+}
+void Insert(int &now, int key, int data=0)
+{
+    if(now == -1)
+    {
+        // 传入指针为空，新建结点保存数据
+        now = ++ tp;
+        tr[now].Init(key, data);
+    }
+    // 判断插入哪个子树，插入数据，判断平衡因子，做正确旋转，更新高度
+}
+void Delete(int &now, int key)
+{
+    if(now == -1) return;
+    else if(key < tr[now].key) Delete(tr[now].left, key);
+    else if(key > tr[now].key) Delete(tr[now].right, key);
+    else
+    {
+        // 删除当前结点
+    }
+    // 处理树平衡
+}
+
+int main()
+{
+    int n, op, key, data;
+    while(scanf("%d", &n) != EOF)
+    {
+        root = tp = -1;
+        while(n --)  // 初始化根结点和“内存指针”
+        {
+            scanf("%d", &op);
+            if(op == 1)
+            {
+            }
+            else if(op == 2)
+            {
+            }           
+    }
+    return 0;
+}
 Input
-第一行输入一个t，表示下面将有t组测试数据。接下来的t行的每行输入一个表达式，表达式只考虑英文半角状态输入，无需考虑中文全角输入
+每组数据第一行n表示有n个操作
+
+接下来n行操作内容
+
 
 Output
-对于每一行的表达式，检查括号是否匹配，匹配则输入ok，不匹配则输出error
+按操作规则输出对应内容
 
 Sample
 #0
 Input
-2
-(a+b)[4*5+(-6)]
-[5*8]/{(a+b)-6
+8
+1 1
+1 2
+1 3
+1 4
+1 5
+2 2
+2 2
+2 6
 Output
-ok
-error
-Hint
-算法流程
-
-初始化，i=0，建立堆栈，栈为空
-输入表达式，建立指针指向表达式的头部
-读入表达式的第i个字符
-如果第i个字符是左括号，入栈
-如果第i个字符是右括号，检查栈顶元素是否匹配 A.如果匹配，弹出栈顶元素 B.如果不匹配，报错退出 6、i++，指向下一个字符，是否已经表达式末尾 A. 未到末尾，重复步骤3 B. 已到达末尾 a. 堆栈为空，输出ok b. 堆栈不为空，输出error
+2
+3
+-1

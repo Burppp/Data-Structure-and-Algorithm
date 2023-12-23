@@ -1,69 +1,65 @@
 #include <iostream>
-#include <stack>
 using namespace std;
-void clear_stack(stack<char>* stk)
+class Binary_tree
 {
-	while (!stk->empty())
+public:
+	char* datas;
+	int data_size;
+
+	Binary_tree() : datas(NULL), data_size(0) {}
+	Binary_tree(int size)
 	{
-		stk->pop();
+		data_size = size;
+		datas = new char[data_size];
 	}
-}
+	Binary_tree(char* external_datas, int size)
+	{
+		data_size = size;
+		datas = external_datas;
+	}
+	int BalanceFactor_helper(int index)
+	{
+		if (datas[index] == '0' || index >= data_size)
+		{
+			return 0;
+		}
+		int left_level = BalanceFactor_helper(2 * index + 1);
+		int right_level = BalanceFactor_helper(2 * index + 2);
+		cout << datas[index] << ' ' << left_level - right_level << endl;
+		if (left_level > right_level)
+			return left_level + 1;
+		else
+			return right_level + 1;
+	}
+	void BalanceFactor()
+	{
+		char* output_char = new char[data_size];
+		int* output_int = new int[data_size];
+		int start_index = 0, output_pointer = 0;
+		BalanceFactor_helper(start_index);
+	}
+};
 int main()
 {
-	int t, i;
-	int status = 1;
-	string str;
-	stack <char>stk;
+	int t;
 	cin >> t;
 	while (t--)
 	{
-		status = 1;
-		cin >> str;
-		for (i = 0;i < str.size();i++)
-		{
-			if (str[i] == '[' || str[i] == '(' || str[i] == '{')
-			{
-				stk.push(str[i]);
-				continue;
-			}
-			if (str[i] == ']' || str[i] == ')' || str[i] == '}')
-			{
-				if (stk.empty())
-				{
-					cout << "error" << endl;
-					break;
-				}
-				else
-				{
-					if (str[i] == ']' && stk.top() == '[')
-						stk.pop();
-					else if (str[i] == ')' && stk.top() == '(')
-						stk.pop();
-					else if (str[i] == '}' && stk.top() == '{')
-						stk.pop();
-					else
-					{
-						break;
-					}
-				}
-			}
-		}
-		if (!stk.empty())
-		{
-			cout << "error" << endl;
-			clear_stack(&stk);
-			continue;
-		}
-		if (i == str.size())
-			cout << "ok" << endl;
+		int num;
+		cin >> num;
+		char* datas = new char[num];
+		for (int i = 0; i < num; i++)
+			cin >> datas[i];
+		Binary_tree* tree = new Binary_tree(datas, num);
+		tree->BalanceFactor();
 	}
 	return 0;
 }
 /**********************************************************************
-	Problem: 1084
+	Problem: 1042
 	User: 202200201118
 	Language: C++
 	Result: AC
-	Time:7 ms
+	Time:10 ms
 	Memory:2224 kb
 **********************************************************************/
