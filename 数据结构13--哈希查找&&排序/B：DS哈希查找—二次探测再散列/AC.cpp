@@ -1,140 +1,111 @@
 #include <iostream>
-#include <vector>
 using namespace std;
-class Binary_tree_node
+int length, keys;
+void Init(int* Hash)
 {
-public:
-	int data;
-	Binary_tree_node* left, * right;
-	Binary_tree_node() : left(NULL), right(NULL) {}
-	Binary_tree_node(int e) : data(e), left(NULL), right(NULL) {}
-};
-class Binary_tree
+	for (int i = 0;i < length;i++)
+		Hash[i] = -1;
+}
+void Insert(int* Hash, int num)
 {
-public:
-	Binary_tree_node* root;
-	
-	Binary_tree() : root(NULL) {}
-	Binary_tree(int data)
+	int value = num % 11;
+	int count = 1, HashIndex, times = 0;
+	HashIndex = value;
+	while (1)
 	{
-		root = new Binary_tree_node(data);
-	}
-	void Binary_tree_inset_helper(int data, Binary_tree_node*& external_root)
-	{
-		if (data > external_root->data)
+		if(Hash[HashIndex] == -1)
 		{
-			if (external_root->right == NULL)
-			{
-				external_root->right = new Binary_tree_node(data);
-				return;
-			}
-			else
-				Binary_tree_inset_helper(data, external_root->right);
+			Hash[HashIndex] = num;
+			break;
+		}
+		if(times % 2 == 0)
+		{
+			HashIndex = value + count * count;
+			HashIndex %= length;
+			times++;
 		}
 		else
 		{
-			if (external_root->left == NULL)
-			{
-				external_root->left = new Binary_tree_node(data);
-				return;
-			}
-			else
-				Binary_tree_inset_helper(data, external_root->left);
-		}
-		return;
-	}
-	void Binary_tree_insert(int data)
-	{
-		if (root == NULL)
-		{
-			root = new Binary_tree_node(data);
-			return;
-		}
-		Binary_tree_inset_helper(data, root);
-		return;
-	}
-	void Binary_tree_inorder_traversal_helper(Binary_tree_node*& external_root)
-	{
-		if (external_root != NULL)
-		{
-			Binary_tree_inorder_traversal_helper(external_root->left);
-			cout << external_root->data << ' ';
-			Binary_tree_inorder_traversal_helper(external_root->right);
+			HashIndex = value - count * count;
+			while(HashIndex < 0)
+				HashIndex = (HashIndex + 100 * length) % length;
+			times++;
+			count++;
 		}
 	}
-	void Binary_tree_inorder_traversal()
+}
+void Print(int* Hash)
+{
+	for (int i = 0;i < length;i++)
 	{
-		Binary_tree_inorder_traversal_helper(root);
-		cout << endl;
-	}
-	void Binary_tree_search_helper(int target, Binary_tree_node*& external_root, int& output, bool &get_result)
-	{
-		if (target > external_root->data && external_root->right != NULL)
-		{
-			output++;
-			Binary_tree_search_helper(target, external_root->right, output, get_result);
-		}
-		else if (target < external_root->data && external_root->left != NULL)
-		{
-			output++;
-			Binary_tree_search_helper(target, external_root->left, output, get_result);
-		}
-		else if (target == external_root->data)
-		{
-			output++;
-			get_result = true;
-			return;
-		}
-		return;
-	}
-	int Binary_tree_search(int target)
-	{
-		int result = 0;
-		bool get_result = false;
-		Binary_tree_search_helper(target, root, result, get_result);
-		if(get_result)
-			return result;
+		if (Hash[i] != -1)
+			cout << Hash[i];
 		else
-			return -1;
+			cout << "NULL";
+		if (i != length - 1)
+			cout << ' ';
 	}
-	void Binary_tree_build(vector<int> datas)
+	cout << endl;
+}
+void Search(int* Hash, int num)
+{
+	int times = 0, value, HashIndex, search = 1, count = 0;
+	value = num % 11;
+	HashIndex = value;
+	while (1)
 	{
-		int size = datas.size();
-		for (int i = 0; i < size; i++)
-			Binary_tree_insert(datas[i]);
-		return;
+		if(times >= length)
+			break;
+		times++;
+		if (Hash[HashIndex] == num)
+		{
+			cout << "1 " << times << ' ' << HashIndex + 1 << endl;
+			return;
+		}
+		if (Hash[HashIndex] == -1)
+			break;
+		if(count % 2 == 0)
+		{
+			HashIndex = (value + search * search) % length;
+			count++;
+		}
+		else
+		{
+			HashIndex = value - search * search;
+			while(HashIndex < 0)
+				HashIndex = (HashIndex + 100 * length) % length;
+			search++;
+			count++;
+		}
 	}
-};
+	cout << "0 " << times << endl;
+}
 int main()
 {
-	int t;
+	int t = 0;
+	int* Hash = NULL;
 	cin >> t;
-	while(t--)
+	while (t--)
 	{
+		cin >> length >> keys;
+		Hash = new int[length];
+		Init(Hash);
+		while (keys--)
+		{
+			int num;
+			cin >> num;
+			Insert(Hash, num);
+		}
+		Print(Hash);
 		int num;
 		cin >> num;
-		vector<int>datas = vector<int>(num);
-		for(int i = 0;i < num;i++)
-			cin >> datas[i];
-		Binary_tree *tree = new Binary_tree();
-		tree->Binary_tree_build(datas);
-		tree->Binary_tree_inorder_traversal();
-		cin >> num;
-		for(int i = 0;i < num;i++)
+		while (num--)
 		{
-			int insert_data;
-			cin >> insert_data;
-			tree->Binary_tree_insert(insert_data);
-			tree->Binary_tree_inorder_traversal();
+			int target;
+			cin >> target;
+			Search(Hash, target);
 		}
 	}
+	delete[] Hash;
 	return 0;
 }
-/**********************************************************************
-	Problem: 1039
-	User: 202200201118
-	Language: C++
-	Result: AC
-	Time:33 ms
-	Memory:2224 kb
-**********************************************************************/
